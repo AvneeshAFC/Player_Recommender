@@ -64,14 +64,44 @@ with params:
     col5, col6 = st.beta_columns([1, 1])
     with col5:
         if radio=='Outfield players':
-            res, val, step = (5, 20), 10, 5
+            res, val, step = (5, 20), 5, 5
         else:
             res, val, step = (3, 10), 5, 1
-        st.slider('Number of results', min_value=res[0], max_value=res[1], value=val, step=step)
-    with col6:
-        with st.spinner(text='running recommendation engine'):
-            time.sleep(1)
-            st.success('Done')
+        count = st.slider('Number of results', min_value=res[0], max_value=res[1], value=val, step=step)
+    # with col6:
+        # with st.spinner(text='running recommendation engine'):
+        #     time.sleep(1)
+        #     st.success('Done')
 
     
-    
+with result:
+    st.header('_recommendations for_ **{}**'.format(query))
+
+    def getRecommendations(metric, league='All', age=age_default, count=val):
+        df_res = df.iloc[:, [1, 3, 5, 6, 11]].copy()
+        df_res['Player'] = players
+        df_res.insert(1, 'Similarity', metric)
+        df_res = df_res.sort_values(by=['Similarity'], ascending=False)
+        metric = [str(num) + '%' for num in df_res['Similarity']]
+        df_res['Similarity'] = metric
+        
+        
+        if league=='All':
+            pass
+        else:
+            df_res = df_res[df_res['Comp']==league]
+        
+        
+        if age==age_default:
+            pass
+        else:
+            df_res = df_res[(df_res['Age'] >= age[0]) & (df_res['Age'] <= age[1])]
+        
+        
+        df_res = df_res.iloc[1:count+1, :].reset_index(drop=True)
+        df_res.index = df_res.index + 1
+        return df_res
+
+    sims = engine[query]
+    recoms = getRecommendations(sims, league=comp, age=age, count=count)
+    st.table(recoms)
