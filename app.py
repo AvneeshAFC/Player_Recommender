@@ -3,18 +3,20 @@ import pandas as pd
 import numpy as np
 import pickle
 import time
+from pathlib import Path
+
 
 
 @st.cache(show_spinner=False)
 def getData():
-    # loading outfield players pickles
+    # loading outfield players' cleaned data and engine
     player_df = pd.read_pickle(r'data\outfield.pkl')
     with open(r'data\player_ID.pickle', 'rb') as file:
         player_ID = pickle.load(file)
     with open(r'data\engine.pickle', 'rb') as file:
         engine = pickle.load(file)
 
-    # loading gk players pickles
+    # loading gk players' cleaned data and engine
     gk_df = pd.read_pickle(r'data\gk.pkl')
     with open(r'data\gk_ID.pickle', 'rb') as file:
         gk_ID = pickle.load(file)
@@ -31,7 +33,6 @@ header = st.beta_container()
 data_info1 = st.beta_container()
 params = st.beta_container()
 result = st.beta_container()
-data_info2 = st.beta_container()
 
 
 with header:
@@ -39,22 +40,19 @@ with header:
 
 
 with data_info1:
-    st.markdown('Based on the 2020/21 season data for the **Big 5** European leagues')
+    st.markdown('Based on the 2020/21 season data for the **Big 5** European leagues :soccer:')
+    @st.cache
+    def read_info(path):
+        return Path(path).read_text(encoding='utf8')
 
-    # make images of same sizes by default. load them in st.cache
-    # credit, img1, img2 = st.beta_columns([4, 10, 10])
-    # with credit:
-    #     st.markdown('Data via')
-    # with img1:
-    #     st.image(r'img/fbref.png')
-    # with img2:
-    #     st.image(r'img/sb.png')
+    st.markdown(read_info('info.md'), unsafe_allow_html=True)
+
 
 
 with params:
     st.text(' \n')
+    st.text(' \n')
     st.header('Tweak the parameters')
-    # st.text('Choose the player name, type, leagues to get recommendation from, age bracket and \nthe number of results.')
     
     col1, col2 = st.beta_columns([1, 2])
     with col1:
@@ -72,7 +70,7 @@ with params:
     col3, col4, col5 = st.beta_columns([1, 1, 1])
     with col3:
         if radio=='Outfield players':
-            res, val, step = (5, 20), 5, 5
+            res, val, step = (5, 20), 10, 5
         else:
             res, val, step = (3, 10), 5, 1
         count = st.slider('Number of results', min_value=res[0], max_value=res[1], value=val, step=step)
@@ -106,7 +104,7 @@ with result:
             pass
         else:
             df_res = df_res[df_res['Comp']==league]
-        
+
         
         if age==age_default:
             pass
@@ -116,17 +114,13 @@ with result:
         
         df_res = df_res.iloc[:count, :].reset_index(drop=True)
         df_res.index = df_res.index + 1
+        if len(df)==2040:
+            mp90 = [str(round(num, 1)) for num in df_res['90s']]
+            df_res['90s'] = mp90
+        df_res.rename(columns={'Pos':'Position', 'Comp':'League'}, inplace=True)
         return df_res
+
 
     sims = engine[query]
     recoms = getRecommendations(sims, league=comp, age=age, count=count)
     st.table(recoms)
-
-
-with data_info2:
-    st.markdown('**{}** dataset info'.format(radio))
-    info1, info2 = st.beta_columns([1.5, 2])
-    with info1:
-        st.write('Total number of players: ', len(df))
-    with info2:
-        st.write('Total number of features compared: ', len(df.columns)-12)
