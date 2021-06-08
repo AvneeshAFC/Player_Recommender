@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import pickle
-import time
 from pathlib import Path
 
 
@@ -65,9 +63,9 @@ with params:
         players = sorted(list(player_ID.keys()))
         age_default = (min(df['Age']), max(df['Age']))
         query = st.selectbox('Player name', players, 
-                            help='To search from a specific team, just type in the club\'s name.')
+            help='Type without deleting a character. To search from a specific team, just type in the club\'s name.')
 
-    col3, col4, col5 = st.beta_columns([1, 1, 1])
+    col3, col4, col5, col6 = st.beta_columns([0.7, 1, 1, 1])
     with col3:
         if radio=='Outfield players':
             res, val, step = (5, 20), 10, 5
@@ -76,10 +74,14 @@ with params:
         count = st.slider('Number of results', min_value=res[0], max_value=res[1], value=val, step=step)
     with col4:
         comp = st.selectbox('League', ['All', 'Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'Ligue 1'],
-            help='Leagues to get recommendations from. All 5 leagues by default.')
+            help='Leagues to get recommendations from. \'All\' leagues by default.')
     with col5:
+        comparison = st.selectbox('Comparison with', ['All positions', 'Same position'],
+            help='Whether to compare the selected player with all positions or just the same defined position in the dataset. \'All \
+            positions\' by default.')
+    with col6:
         age = st.slider('Age bracket', min_value=age_default[0], max_value=age_default[1], value=age_default, 
-        help='Age range to get recommendations from. Drag the sliders on either side. All ages by default.')
+        help='Age range to get recommendations from. Drag the sliders on either side. \'All\' ages by default.')
     
 
     
@@ -90,7 +92,7 @@ with result:
     st.markdown('_showing recommendations for_ **{}**'.format(query))
     
 
-    def getRecommendations(metric, league='All', age=age_default, count=val):
+    def getRecommendations(metric, league='All', comparison='All positions', age=age_default, count=val):
         df_res = df.iloc[:, [1, 3, 5, 6, 11]].copy()
         df_res['Player'] = list(player_ID.keys())
         df_res.insert(1, 'Similarity', metric)
@@ -100,6 +102,11 @@ with result:
         df_res = df_res.iloc[1:, :]
 
         
+        if comparison == 'Same position':
+            q_pos = list(df[df['Player']==query.split(' (')[0]].Pos)[0]
+            df_res = df_res[df_res['Pos']==q_pos]
+
+
         if league=='All':
             pass
         else:
@@ -122,5 +129,5 @@ with result:
 
 
     sims = engine[query]
-    recoms = getRecommendations(sims, league=comp, age=age, count=count)
+    recoms = getRecommendations(sims, league=comp, comparison=comparison, age=age, count=count)
     st.table(recoms)
