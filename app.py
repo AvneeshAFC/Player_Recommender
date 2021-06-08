@@ -8,17 +8,17 @@ from pathlib import Path
 @st.cache(show_spinner=False)
 def getData():
     # loading outfield players' cleaned data and engine
-    player_df = pd.read_pickle(r'data\outfield.pkl')
-    with open(r'data\player_ID.pickle', 'rb') as file:
+    player_df = pd.read_pickle(r'data/outfield.pkl')
+    with open(r'data/player_ID.pickle', 'rb') as file:
         player_ID = pickle.load(file)
-    with open(r'data\engine.pickle', 'rb') as file:
+    with open(r'data/engine.pickle', 'rb') as file:
         engine = pickle.load(file)
 
     # loading gk players' cleaned data and engine
-    gk_df = pd.read_pickle(r'data\gk.pkl')
-    with open(r'data\gk_ID.pickle', 'rb') as file:
+    gk_df = pd.read_pickle(r'data/gk.pkl')
+    with open(r'data/gk_ID.pickle', 'rb') as file:
         gk_ID = pickle.load(file)
-    with open(r'data\gk_engine.pickle', 'rb') as file:
+    with open(r'data/gk_engine.pickle', 'rb') as file:
         gk_engine = pickle.load(file)
 
     return [player_df, player_ID, engine], [gk_df, gk_ID, gk_engine]
