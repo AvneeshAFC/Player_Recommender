@@ -4,6 +4,11 @@ import pickle
 from pathlib import Path
 
 
+st.set_page_config(
+    page_title="Player Recommender",
+    page_icon=":soccer:"
+)
+
 
 @st.cache(show_spinner=False)
 def getData():
