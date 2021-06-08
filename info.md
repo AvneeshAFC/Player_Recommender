@@ -11,7 +11,7 @@ _**Goal-keepers dataset**_ - Total number of players : **173**. Features for eac
 
 :snake: Principal Component Analysis (PCA) was used for dimensionality reduction. The detailed blog's link will be posted here soon covering data preprocessing, exploratory data analysis and approach used for building the recommendation engine. 
 
-💻 The code for this streamlit app is available [here](https://github.com).
+💻 The code for this streamlit app is available [here](https://github.com/AvneeshAFC/Player_Recommender).
 
 :earth_asia: Reach out to me on [Twitter](https://twitter.com/iAvneesh). Also check out my sports analytics work [here](https://twitter.com/ThirdRuns).
 
